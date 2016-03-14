@@ -1,44 +1,15 @@
 #pragma once
-#include "Bul.h"
-#include "Aim.h"
 
-class Gun : public GUI::Widget, public Core::Timer
+
+class Gun
 {
 public:
-	Gun(const std::string& name, rapidxml::xml_node<>* elem);
-
+	Gun();
 	void Draw();
-	void Update(float dt);
-
-	bool MouseDown(const IPoint& mouse_pos);
-	void MouseMove(const IPoint& mouse_pos);
-
-	void DrawGun();
-	void InitField();
 
 private:
-	void Init();
-	int SaveToGame(std::string current_str);
+	//void Init();
 
-private:
-
-	Render::Texture* _tex1;
-	Render::Texture* _bullet;
-
-	IRect texBullet;
 	IRect texGun;
-
-	std::vector<Bul*> bul;
-	std::vector<Aim*> aim;
-
-	int _curTex;
-
-	float _scale;
-	float _angle;
-	float _timer;
-
-	std::vector<int> save;
-	EffectsContainer _effCont;
-	ParticleEffectPtr _eff;
-
+	Render::Texture* _gun;
 };

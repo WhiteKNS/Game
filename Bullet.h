@@ -1,30 +1,17 @@
 #pragma once
 
-class Bullet : public GUI::Widget
+class Bullet
 {
 public:
-	Bullet(const std::string& name, rapidxml::xml_node<>* elem);
 	Bullet();
+	void Draw();
+	bool Update();
 
-	virtual void Draw();
-	virtual void Update(float dt);
-	void AcceptMessage(const Message& message);
+	IRect texBullet;
+	
+	int Speed;
 
 private:
-	void Init();
 
-private:
-	float _timer;
-
-	float _scale;
-	float _angle;
-
-	Render::Texture* _texBullet;
-
-	IRect texRect;
-
-	int _curTex;
-
-	EffectsContainer _effCont;
-	ParticleEffectPtr _eff;
+	Render::Texture* _bullet;
 };

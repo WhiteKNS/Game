@@ -3,19 +3,17 @@
 #include "Background.h"
 
 
-Background::Background(const std::string& name, rapidxml::xml_node<>* elem)
-	: Widget(name)
-	,_timer(0)
+Background::Background():_timer(0)
 {
+	_tex1 = Core::resourceManager.Get<Render::Texture>("Back");
 }
 
 void Background::Draw()
 {
 
 	Render::device.PushMatrix();
-	_tex1 = Core::resourceManager.Get<Render::Texture>("Back");
-	IRect texRect = _tex1->getBitmapRect();
 
+	IRect texRect = _tex1->getBitmapRect();
 	FRect rect(texRect);
 	FRect uv(0, 1, 0, 1);
 
@@ -34,10 +32,10 @@ void Background::Draw()
 
 	Render::device.SetTexturing(true);
 
-	_effCont.Draw();
+	//_effCont.Draw();
 
 }
-
+/*
 void Background::Update(float dt)
 {
 
@@ -51,7 +49,7 @@ void Background::Update(float dt)
 		_timer -= 2 * math::PI;
 	}
 
-}
+}*/
 /*
 Background::Background()
 {

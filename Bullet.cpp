@@ -1,112 +1,39 @@
+
 #include "stdafx.h"
 
 #include "Bullet.h"
 
-Bullet::Bullet(const std::string& name, rapidxml::xml_node<>* elem)
-	: Widget(name, elem)
-	, _curTex(0)
-	, _timer(0)
-	, _angle(0)
-	, _eff(NULL)
-	, _scale(0.f)
-{
-	Init();
-}
-
-
-
 Bullet::Bullet()
-	: Widget("Bullet")
-	,_curTex(0)
-	, _timer(0)
-	, _angle(0)
-	, _eff(NULL)
-	, _scale(0.f)
 {
-	Init();
+	_bullet = Core::resourceManager.Get<Render::Texture>("Bullet");
+	texBullet = _bullet->getBitmapRect();
 }
 
 
-
-void Bullet::Init()
-{
-	_texBullet = Core::resourceManager.Get<Render::Texture>("Bullet");
-	texRect = _texBullet->getBitmapRect();
-
-
-}
 void Bullet::Draw()
 {
-
-	//IPoint mouse_pos = Core::mainInput.GetMousePos();
-
-	Render::device.PushMatrix();
-
-	//texRect = _tex1->getBitmapRect();
-
-	FRect rect(texRect);
+	FRect rect(texBullet);
 	FRect uv(0, 1, 0, 1);
 
-	_texBullet->TranslateUV(rect, uv);
-	
-	Render::device.MatrixTranslate(texRect.x, texRect.y, 0.0f);
-	Render::device.MatrixScale(1);
+	_bullet->TranslateUV(rect, uv);
 
-	_texBullet->Bind();
-	_texBullet->Draw();
+	Render::device.MatrixTranslate(texBullet.x, texBullet.y, 0.0f);
+
+	_bullet->Bind();
 
 
-	Render::device.PopMatrix();
-
-	_effCont.Draw();
+	Render::DrawRect(rect, uv);
 
 }
 
-void Bullet::Update(float dt)
+
+bool Bullet::Update()
 {
+	texBullet.y += Speed;
 
-	_effCont.Update(dt);
-
-	_timer += dt * 2;
-
-
-	while (_timer > 2 * math::PI)
+	if (texBullet.y > 400)
 	{
-		_timer -= 2 * math::PI;
+		return true;
 	}
-
-	
-	
-	//texRect.x += x;
-	texRect.y += 5;
-	if (texRect.y > 768 - texRect.height)
-		texRect.y -= 768;
-	//_scale = 0.8f + 0.25f * sinf(_timer);
-	//_scale = 0.8f + 0.25f * sinf(_timer);
-}
-
-void Bullet::AcceptMessage(const Message& message)
-{
-	if (message.getPublisher() == "Init")
-	{
-		//rapidxml::file<char> file("bullet.xml");
-		//_texBullet = Core::resourceManager.Get<Render::Texture>("Bullet");
-		//texRect = _texBullet->getBitmapRect();
-
-
-	}
-
-	if (message.getPublisher() == "KeyPress")
-	{
-		int code = utils::lexical_cast<int>(message.getData());
-		if (code < 0)
-		{
-			
-			return;
-		}
-
-		if (code == 'a')
-		{
-		}
-	}
+	return false;
 }
