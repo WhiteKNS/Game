@@ -14,8 +14,8 @@ Aim::Aim()
 
 	_angle = 0;
 	
-	x = rand() % 13;
-	y = rand() % 15;
+	x = rand() % 11;
+	y = rand() % 18;
 }
 
 void Aim::Draw()
@@ -33,8 +33,8 @@ void Aim::Draw()
 	
 	_aim->Bind();
 	Render::DrawRect(rect, uv);
-
 	Render::EndAlphaMul();
+
 	Render::device.PopMatrix();
 
 }

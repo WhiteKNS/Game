@@ -203,6 +203,14 @@ void MainWidget::Update(float dt)
 		_timer -= 100* math::PI;
 	}
 
+	if (_curTex != GAME_WIN && _curTex != GAME_OVER)
+	{
+		if (getElapsedTime() >= timer)
+		{
+			_curTex = GAME_OVER;
+		}
+	}
+
 	for (unsigned int i = 0; i < aim.size(); ++i)
 	{
 		aim.at(i)->Update();
@@ -219,8 +227,6 @@ void MainWidget::Update(float dt)
 		{
 			_eff->posX = bul[0]->texBullet.x * 2 ;
 			_eff->posY = bul[0]->texBullet.y * bul[0]->texBullet.width / 3 ;
-			//_eff->posX = bul[0]->texBullet.x;
-			//_eff->posY = bul[0]->texBullet.y;
 		}
 	
 	}
@@ -232,22 +238,16 @@ void MainWidget::Update(float dt)
 
 	if (_curTex == GAME_WIN||_curTex == GAME_OVER)
 	{
-		for (unsigned int i = 0; i < aim.size(); ++i)
-		aim.erase(aim.begin() + i);	
-
-		_eff->Reset();
-		
+		//for (unsigned int i = 0; i < aim.size(); ++i)
+		//aim.erase(aim.begin() + i);	
+		aim.clear();
+		if (_eff) _eff->Kill();
+		_eff = NULL;
 
 		Core::Timer::Pause();
 	}
 
-	if (_curTex != GAME_WIN && _curTex != GAME_OVER)
-	{
-		if (getElapsedTime() >= timer)
-		{
-			_curTex = GAME_OVER;
-		}
-	}
+	
 
 }
 
@@ -302,16 +302,17 @@ void MainWidget::AcceptMessage(const Message& message)
 				for (unsigned int i = 0; i < bul.size(); ++i)
 					bul.erase(bul.begin() + i);
 
+				bul.clear();
+
 				if (!aim.empty()) {
 					for (unsigned int i = 0; i < aim.size(); ++i)
 						aim.erase(aim.begin() + i);
 				}
 				aim.clear();
 				counter = -1;
-				_eff->Kill();
+				if (_eff) _eff->Kill();;
 				_eff = NULL;
-				
-
+				//_eff = NULL;
 				Init();
 			}
 		}
