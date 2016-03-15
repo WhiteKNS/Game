@@ -2,6 +2,7 @@
 
 #include "Aim.h"
 
+enum ARROW {RIGHT_UP=0, LEFT_UP, RIGHT_DOWN, LEFT_DOWN};
 
 Aim::Aim()
 {
@@ -14,8 +15,10 @@ Aim::Aim()
 
 	_angle = 0;
 	
-	x = rand() % 11;
-	y = rand() % 18;
+	Arrow = rand() % 4;
+
+	x = rand() %4 + 1;
+	y = rand() %6+ 1;
 }
 
 void Aim::Draw()
@@ -50,8 +53,26 @@ void Aim::Update()
 		x = -x;
 	}
 
-	texAim.x += x;
-	texAim.y += y;
+	if (Arrow == LEFT_UP)
+	{
+		texAim.x -= x;
+		texAim.y += y;
+	}
+	else if (Arrow == RIGHT_UP)
+	{
+		texAim.x += x;
+		texAim.y += y;
+	}
+	else if (Arrow == LEFT_DOWN)
+	{
+		texAim.x -= x;
+		texAim.y -= y;
+	}
+	else 
+	{
+		texAim.x += x;
+		texAim.y -= y;
+	}
 
 	_scale = 0.8f + 0.25f * sinf(_timer);
 }

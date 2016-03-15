@@ -25,6 +25,7 @@ private:
 
 	float _scale;
 	float _angle;
+	int Arrow;
 
 	int x;
 	int y;
