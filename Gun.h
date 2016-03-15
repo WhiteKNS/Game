@@ -8,7 +8,6 @@ public:
 	void Draw();
 
 private:
-	//void Init();
 
 	IRect texGun;
 	Render::Texture* _gun;

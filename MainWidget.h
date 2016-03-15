@@ -49,6 +49,8 @@ private:
 	float _angle;
 	float _timer;
 
+	int sound;
+
 	std::vector<int> save;
 
 	EffectsContainer _effCont;

@@ -37,3 +37,8 @@ bool Bullet::Update()
 	}
 	return false;
 }
+
+const IRect Bullet::GetBullet()
+{
+	return texBullet;
+}

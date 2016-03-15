@@ -6,12 +6,14 @@ public:
 	Bullet();
 	void Draw();
 	bool Update();
+	const IRect GetBullet();
+	//void SetBullet()
+	int Speed;
 
 	IRect texBullet;
-	
-	int Speed;
 
 private:
 
 	Render::Texture* _bullet;
+	
 };

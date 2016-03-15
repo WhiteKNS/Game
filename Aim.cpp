@@ -17,8 +17,9 @@ Aim::Aim()
 	
 	Arrow = rand() % 4;
 
-	x = rand() %4 + 1;
-	y = rand() %6+ 1;
+//	math::random();
+	x = rand() %2 + 1;
+	y = rand() %7+ 1;
 }
 
 void Aim::Draw()
@@ -44,6 +45,7 @@ void Aim::Draw()
 
 void Aim::Update()
 {
+	
 	if (texAim.y > 768*0.5 - texAim.height / 2 || texAim.y < 0)
 	{
 		y = -y;
@@ -52,6 +54,7 @@ void Aim::Update()
 	{
 		x = -x;
 	}
+
 
 	if (Arrow == LEFT_UP)
 	{
@@ -68,7 +71,7 @@ void Aim::Update()
 		texAim.x -= x;
 		texAim.y -= y;
 	}
-	else 
+	else if(Arrow == RIGHT_DOWN)
 	{
 		texAim.x += x;
 		texAim.y -= y;

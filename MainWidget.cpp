@@ -18,23 +18,22 @@ MainWidget::MainWidget(const std::string& name, rapidxml::xml_node<>* elem)
 	, _eff(NULL)
 	,_timer(0)
 
+
 {
+	//sound = MM::manager.PlaySample("Arkanoid", true);
 	Init();
 }
 
 void MainWidget::Init()
 {
-
+	MM::manager.StopSample(sound);
+	MM::manager.PlaySample("Arkanoid", true);
 	back = new Background();
-
 	for (unsigned int i = 0; i < 5; ++i)
 	bul.push_back(new Bullet());
-
 	data = new DataBase();
 	data->InitField();
-
 	gun = new Gun();
-	
 	for (int i = 0; i < data->GetTarget(); ++i)
 		aim.push_back(new Aim());
 
@@ -42,14 +41,13 @@ void MainWidget::Init()
 	bul.at(0)->texBullet.y = -150;
 	
 	counter = 0;
-
 	_gameOver = Core::resourceManager.Get<Render::Texture>("Over");
 	_gameWin = Core::resourceManager.Get<Render::Texture>("Win");
 	_curTex = 0;
 	
 	Core::Timer::Start();
-
 	timer = data->GetTime()+Core::Timer::getElapsedTime();
+
 }
 
 void MainWidget::DrawGameOver()
@@ -82,9 +80,6 @@ void MainWidget::DrawGameWin()
 	Render::device.MatrixScale(2.3);
 	_gameWin->Bind();
 	Render::DrawRect(rect, uv);
-
-	//Render::BindFont("arial");
-	//Render::PrintString(1024 / 2 + 700, 768 - 150, std::string("You hit: ") + utils::lexical_cast(counter) + std::string(" aims"), 5.0f, CenterAlign);
 	
 	Render::device.PopMatrix();
 }
@@ -147,15 +142,17 @@ void MainWidget::Draw()
 	for (unsigned int i = 0; i < aim.size(); ++i)
 	{
 
-		FRect gunRect(bul[0]->texBullet);
-		gunRect.xStart = bul[0]->texBullet.x + bul[0]->texBullet.Width()/2;
-		gunRect.xEnd = bul[0]->texBullet.x + bul[0]->texBullet.Width()/2;
+		FRect gunRect(bul[0]->GetBullet());
+		gunRect.xStart = bul[0]->GetBullet().x + bul[0]->GetBullet().Width()/2;
+		gunRect.xEnd = bul[0]->GetBullet().x + bul[0]->GetBullet().Width()/2;
 		if (gunRect.Intersects(aim.at(i)->ReturnAimPoints()))
 		{
+			MM::manager.PlaySample("BonusStar");
+
 			_eff->Finish();
-			_eff = _effCont.AddEffect("WeaponEff");
-			_eff->posX = bul[0]->texBullet.x*2 - bul[0]->texBullet.height;
-			_eff->posY = bul[0]->texBullet.y * bul[0]->texBullet.width/3 + bul[0]->texBullet.height * 3;
+			_eff = _effCont.AddEffect("FindCoin2");
+			_eff->posX = bul[0]->GetBullet().x*2 - bul[0]->GetBullet().height;
+			_eff->posY = bul[0]->GetBullet().y * bul[0]->GetBullet().width/3 + bul[0]->GetBullet().height * 3;
 			_eff->Reset();
 
 			aim.erase(aim.begin() + i);
@@ -203,6 +200,13 @@ void MainWidget::Update(float dt)
 		_timer -= 100* math::PI;
 	}
 
+	if (_curTex == GAME_WIN)
+	{
+		MM::manager.StopSample(sound);
+		MM::manager.PlaySample("Win");
+		sound = MM::manager.GetTrackId();
+	}
+
 	if (_curTex != GAME_WIN && _curTex != GAME_OVER)
 	{
 		if (getElapsedTime() >= timer)
@@ -225,8 +229,8 @@ void MainWidget::Update(float dt)
 		}
 		else
 		{
-			_eff->posX = bul[0]->texBullet.x * 2 ;
-			_eff->posY = bul[0]->texBullet.y * bul[0]->texBullet.width / 3 ;
+			_eff->posX = bul[0]->GetBullet().x * 2 ;
+			_eff->posY = bul[0]->GetBullet().y * bul[0]->GetBullet().width / 3 ;
 		}
 	
 	}
@@ -237,18 +241,15 @@ void MainWidget::Update(float dt)
 	}
 
 	if (_curTex == GAME_WIN||_curTex == GAME_OVER)
-	{
-		//for (unsigned int i = 0; i < aim.size(); ++i)
-		//aim.erase(aim.begin() + i);	
+	{	
 		aim.clear();
 		if (_eff) _eff->Kill();
 		_eff = NULL;
 
 		Core::Timer::Pause();
+
+
 	}
-
-	
-
 }
 
 
@@ -265,11 +266,11 @@ bool MainWidget::MouseDown(const IPoint &mouse_pos)
 				bul.at(0)->texBullet.x = (float)mouse_pos.x*0.5 + 15;
 				bul.at(0)->texBullet.y = 15;
 
-				_eff = _effCont.AddEffect("BulletTrace");
-				_eff->posX = bul[0]->texBullet.x;
-				_eff->posY = bul[0]->texBullet.y;
-			//	_eff->Reset();
+				MM::manager.PlaySample("Boom");
 
+				_eff = _effCont.AddEffect("BulletTrace");
+				_eff->posX = bul[0]->GetBullet().x;
+				_eff->posY = bul[0]->GetBullet().y;
 		}
 	}
 	return false;
@@ -312,7 +313,7 @@ void MainWidget::AcceptMessage(const Message& message)
 				counter = -1;
 				if (_eff) _eff->Kill();;
 				_eff = NULL;
-				//_eff = NULL;
+				MM::manager.StopSample(sound);
 				Init();
 			}
 		}
