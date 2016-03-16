@@ -17,7 +17,6 @@ Aim::Aim()
 
 	Arrow = rand() % 4;
 
-	//	math::random();
 	x = rand() % 2 + 1;
 	y = rand() % 7 + 1;
 }
@@ -26,7 +25,6 @@ void Aim::Draw()
 {
 	IPoint mouse_pos = Core::mainInput.GetMousePos();
 
-	Render::device.PushMatrix();
 	Render::BeginAlphaMul(0.9f);
 	FRect rect(texAim);
 	FRect uv(0, 1, 0, 1);
@@ -39,43 +37,44 @@ void Aim::Draw()
 	Render::DrawRect(rect, uv);
 	Render::EndAlphaMul();
 
-	Render::device.PopMatrix();
 
 }
 
 void Aim::Update(float dt)
 {
 
-	if (texAim.y > 768 * 0.5 - texAim.height / 2 || texAim.y < 0)
+	if (texAim.y > 768 * 0.5 - texAim.height / 2 || texAim.y <= 0)
 	{
 		y = -y;
 	}
-	if (texAim.x > 1024 * 0.5 - texAim.width / 2 || texAim.x < 0)
+	if (texAim.x > 1024 * 0.5 - texAim.width / 2 || texAim.x <= 0)
 	{
 		x = -x;
 	}
 
-
 	if (Arrow == LEFT_UP)
 	{
-		//texAim.x -= x;
-		//texAim.y += y;
+		texAim.x -= x;
+		texAim.y += y;
 	}
 	else if (Arrow == RIGHT_UP)
 	{
-		//texAim.x += x;
-		//texAim.y += y;
+		texAim.x += x;
+		texAim.y += y;
+		
 	}
 	else if (Arrow == LEFT_DOWN)
 	{
-		//texAim.x -= x;
-		//texAim.y -= y;
+		texAim.x -= x;
+		texAim.y -= y;
 	}
 	else if (Arrow == RIGHT_DOWN)
 	{
-		//texAim.x += x;
-		//texAim.y -= y;
+		texAim.x += x;
+		texAim.y -= y;
 	}
+
+
 
 }
 

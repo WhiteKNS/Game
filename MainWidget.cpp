@@ -25,15 +25,17 @@ void MainWidget::Init()
 {
 	MM::manager.PlaySample("Arkanoid", true);
 	back = new Background();
+
 	for (unsigned int i = 0; i < 5; ++i)
 	bul.push_back(new Bullet());
+
 	data = new DataBase();
 	data->InitField();
 	gun = new Gun();
 	for (int i = 0; i < data->GetTarget(); ++i)
 		aim.push_back(new Aim());
 
-	bul.at(0)->Speed = data->GetSpeed();
+	bul.at(0)->SetSpeed( data->GetSpeed());
 	bul.at(0)->texBullet.y = -150;
 	
 	counter = 0;
@@ -81,31 +83,35 @@ void MainWidget::DrawGameWin()
 
 void MainWidget::Collision()
 {
-	for (unsigned int i = 0; i < aim.size(); ++i)
+	if (!bul.empty())
 	{
-		FRect gunRect(bul[0]->texBullet);
-
-		gunRect.xStart = bul[0]->texBullet.x + bul[0]->texBullet.Width() / 2;
-		gunRect.xEnd = bul[0]->texBullet.x + bul[0]->texBullet.Width() / 2 ;
-		gunRect.yStart = bul[0]->texBullet.y - bul[0]->texBullet.height/2;
-		gunRect.yEnd = bul[0]->texBullet.y - bul[0]->texBullet.height / 2;
-
-		if (gunRect.Intersects(aim.at(i)->ReturnAimPoints()))
+		for (unsigned int i = 0; i < aim.size(); ++i)
 		{
-			MM::manager.PlaySample("BonusStar");
-			_eff->Finish();
-			_eff = _effCont.AddEffect("FindCoin2");
+			FRect gunRect(bul[0]->texBullet);
 
-			_eff->posX = bul[0]->texBullet.x * 2 - bul[0]->texBullet.height;
-			_eff->posY = bul[0]->texBullet.y * bul[0]->texBullet.width / 3 + bul[0]->texBullet.height * 3;
-			_eff->Reset();
-			aim.erase(aim.begin() + i);
-			counter++;
-			if (aim.empty())
+			gunRect.xStart = bul[0]->texBullet.x + bul[0]->texBullet.Width() / 2;
+			gunRect.xEnd = bul[0]->texBullet.x + bul[0]->texBullet.Width() / 2;
+			gunRect.yStart = bul[0]->texBullet.y + bul[0]->texBullet.height / 2;
+			gunRect.yEnd = bul[0]->texBullet.y + bul[0]->texBullet.height / 2;
+
+			if (gunRect.Intersects(aim.at(i)->ReturnAimPoints()))
 			{
-				_curTex = GAME_WIN;
+				MM::manager.PlaySample("BonusStar");
+
+				if(_eff) _eff->Kill();
+				_eff = _effCont.AddEffect("FindCoin2");
+
+				_eff->posX = bul[0]->texBullet.x * 2 + bul[0]->texBullet.height / 2;
+				_eff->posY = bul[0]->texBullet.y * bul[0]->texBullet.width / 3;
+				_eff->Reset();
+				aim.erase(aim.begin() + i);
+				counter++;
+				if (aim.empty())
+				{
+					_curTex = GAME_WIN;
+				}
+				else _curTex = BULLET_EXIST;
 			}
-			else _curTex = BULLET_EXIST;
 		}
 	}
 }
@@ -128,12 +134,14 @@ void MainWidget::Draw()
 		DrawGameWin();
 	}
 	IPoint mouse_pos = Core::mainInput.GetMousePos();
-	Render::device.PushMatrix();
+
 	for (unsigned int i = 0; i < aim.size(); ++i) 
 	{
+		Render::device.PushMatrix();
 		aim.at(i)->Draw();
+		Render::device.PopMatrix();
 	}
-	Render::device.PopMatrix();
+	
 	if (_curTex != GAME_OVER&&_curTex != GAME_WIN)
 	{
 		Render::device.PushMatrix();
@@ -143,6 +151,7 @@ void MainWidget::Draw()
 	if (_curTex==MOUSE_PRESS)
 	{
 		Render::device.PushMatrix();
+
 		bul[0]->Draw();
 		Render::device.PopMatrix();
 	}
@@ -198,18 +207,13 @@ void MainWidget::Update(float dt)
 	
 		if (bul[0]->Update(dt))
 		{
+			bul.clear();
 			_curTex = BULLET_NOT_EXISTS;
-			bul[0]->texBullet.y = -100;
-		}
-		else
-		{
-			_eff->posX = bul[0]->texBullet.x * 2 ;
-			_eff->posY = bul[0]->texBullet.y * bul[0]->texBullet.width / 3 ;
 		}
 	}
 	if (_curTex == BULLET_NOT_EXISTS)
 	{
-		bul[0]->texBullet.y = -100;
+		bul.clear();
 	}
 	if (_curTex == GAME_WIN||_curTex == GAME_OVER)
 	{	
@@ -228,15 +232,13 @@ bool MainWidget::MouseDown(const IPoint &mouse_pos)
 		if (_curTex == BULLET_NOT_EXISTS)
 		{
 			_curTex = MOUSE_PRESS;
-			Render::device.PushMatrix();
-			IPoint mouse_pos = Core::mainInput.GetMousePos();
-			Render::device.PopMatrix();
-				bul.at(0)->texBullet.x = (float)mouse_pos.x*0.5 + 15;
-				bul.at(0)->texBullet.y = 15;
+
+			bul.clear();
+			bul.push_back(new Bullet());
+
+			bul.at(0)->SetSpeed(data->GetSpeed());
+
 				MM::manager.PlaySample("Boom");
-				_eff = _effCont.AddEffect("BulletTrace");
-				_eff->posX = bul[0]->texBullet.x;
-				_eff->posY = bul[0]->texBullet.y;
 		}
 	}
 	return false;
@@ -259,13 +261,8 @@ void MainWidget::AcceptMessage(const Message& message)
 				delete back;
 				delete data;
 				delete gun;
-				for (unsigned int i = 0; i < bul.size(); ++i)
-					bul.erase(bul.begin() + i);
 				bul.clear();
-				if (!aim.empty()) {
-					for (unsigned int i = 0; i < aim.size(); ++i)
-						aim.erase(aim.begin() + i);
-				}
+			
 				aim.clear();
 				counter = -1;
 				if (_eff) _eff->Kill();;

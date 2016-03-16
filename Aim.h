@@ -24,6 +24,8 @@ private:
 	int x;
 	int y;
 
+	float speed;
+
 	EffectsContainer _effCont;
 	ParticleEffectPtr _eff;
 
