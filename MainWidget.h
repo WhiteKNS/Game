@@ -18,11 +18,12 @@ private:
 
 	void AcceptMessage(const Message& message);
 	bool MouseDown(const IPoint& mouse_pos);
-	void MouseMove(const IPoint& mouse_pos);
 
 	void Init();
 	void DrawGameOver();
 	void DrawGameWin();
+
+	void Collision();
 
 private:
 
@@ -50,6 +51,7 @@ private:
 	float _timer;
 
 	int sound;
+	int music_counter;
 
 	std::vector<int> save;
 

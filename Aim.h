@@ -7,19 +7,13 @@ class Aim
 	public:
 		Aim();
 	void Draw();
-	void Update();
-
-	//void AcceptMessage(const Message& message);
+	void Update(float dt);
 
 	FRect ReturnAimPoints();
-
 	Render::Texture* _aim;
-	//Render::Texture* _tex2;
-
 	IRect texAim;
 
 private:
-	//void Init();
 
 	float _timer;
 

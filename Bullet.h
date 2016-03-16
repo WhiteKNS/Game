@@ -5,7 +5,7 @@ class Bullet
 public:
 	Bullet();
 	void Draw();
-	bool Update();
+	bool Update(float dt);
 	const IRect GetBullet();
 	//void SetBullet()
 	int Speed;

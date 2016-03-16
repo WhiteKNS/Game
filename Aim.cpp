@@ -18,8 +18,8 @@ Aim::Aim()
 	Arrow = rand() % 4;
 
 //	math::random();
-	x = rand() %2 + 1;
-	y = rand() %7+ 1;
+	x = rand() %10 + 100;
+	y = rand() %17+ 170;
 }
 
 void Aim::Draw()
@@ -43,9 +43,8 @@ void Aim::Draw()
 
 }
 
-void Aim::Update()
+void Aim::Update(float dt)
 {
-	
 	if (texAim.y > 768*0.5 - texAim.height / 2 || texAim.y < 0)
 	{
 		y = -y;
@@ -58,26 +57,26 @@ void Aim::Update()
 
 	if (Arrow == LEFT_UP)
 	{
-		texAim.x -= x;
-		texAim.y += y;
+		texAim.x = texAim.x - x*dt;
+		texAim.y = texAim.y + y*dt;
 	}
 	else if (Arrow == RIGHT_UP)
 	{
-		texAim.x += x;
-		texAim.y += y;
+		texAim.x = texAim.x + x*dt;
+		texAim.y = texAim.y + y*dt;
 	}
 	else if (Arrow == LEFT_DOWN)
 	{
-		texAim.x -= x;
-		texAim.y -= y;
+		texAim.x = texAim.x - x*dt;
+		texAim.y = texAim.y - y*dt;
 	}
 	else if(Arrow == RIGHT_DOWN)
 	{
-		texAim.x += x;
-		texAim.y -= y;
+		texAim.x = texAim.x + x*dt;
+		texAim.y = texAim.y - y*dt;
 	}
 
-	_scale = 0.8f + 0.25f * sinf(_timer);
+	//_scale = 0.8f + 0.25f * sinf(_timer);
 }
 
 FRect Aim::ReturnAimPoints()

@@ -17,16 +17,14 @@ MainWidget::MainWidget(const std::string& name, rapidxml::xml_node<>* elem)
 	,_angle(0)
 	, _eff(NULL)
 	,_timer(0)
-
-
+	, music_counter(0)
 {
-	//sound = MM::manager.PlaySample("Arkanoid", true);
+	setStatic(true);
 	Init();
 }
 
 void MainWidget::Init()
 {
-	MM::manager.StopSample(sound);
 	MM::manager.PlaySample("Arkanoid", true);
 	back = new Background();
 	for (unsigned int i = 0; i < 5; ++i)
@@ -64,14 +62,12 @@ void MainWidget::DrawGameOver()
 	Render::DrawRect(rect, uv);
 	Render::BindFont("arial");
 	Render::PrintString(1024 / 2 + 700, 768-150, std::string("You hit: ") + utils::lexical_cast(counter) + std::string(" aims\n Push any key to restart"), 5.0f, CenterAlign);
-
 	Render::device.PopMatrix();
 }
 
 void MainWidget::DrawGameWin()
 {
 	Render::device.PushMatrix();
-
 	IRect texWin = _gameWin->getBitmapRect();
 	FRect rect(texWin);
 	FRect uv(0, 1, 0, 1);
@@ -80,9 +76,36 @@ void MainWidget::DrawGameWin()
 	Render::device.MatrixScale(2.3);
 	_gameWin->Bind();
 	Render::DrawRect(rect, uv);
-	
 	Render::device.PopMatrix();
 }
+
+
+void MainWidget::Collision()
+{
+	for (unsigned int i = 0; i < aim.size(); ++i)
+	{
+		FRect gunRect(bul[0]->GetBullet());
+		gunRect.xStart = bul[0]->GetBullet().x + bul[0]->GetBullet().Width() / 2;
+		gunRect.xEnd = bul[0]->GetBullet().x + bul[0]->GetBullet().Width() / 2;
+		if (gunRect.Intersects(aim.at(i)->ReturnAimPoints()))
+		{
+			MM::manager.PlaySample("BonusStar");
+			_eff->Finish();
+			_eff = _effCont.AddEffect("FindCoin2");
+			_eff->posX = bul[0]->GetBullet().x * 2 - bul[0]->GetBullet().height;
+			_eff->posY = bul[0]->GetBullet().y * bul[0]->GetBullet().width / 3 + bul[0]->GetBullet().height * 3;
+			_eff->Reset();
+			aim.erase(aim.begin() + i);
+			counter++;
+			if (aim.empty())
+			{
+				_curTex = GAME_WIN;
+			}
+			else _curTex = BULLET_EXIST;
+		}
+	}
+}
+
 
 void MainWidget::Draw()
 {
@@ -96,117 +119,66 @@ void MainWidget::Draw()
 	{
 		DrawGameOver();
 	}
-
 	if (_curTex == GAME_WIN)
 	{
 		DrawGameWin();
 	}
-
-
 	IPoint mouse_pos = Core::mainInput.GetMousePos();
 	Render::device.PushMatrix();
-
 	for (unsigned int i = 0; i < aim.size(); ++i) 
 	{
 		aim.at(i)->Draw();
 	}
-
 	Render::device.PopMatrix();
-
 	if (_curTex != GAME_OVER&&_curTex != GAME_WIN)
 	{
 		Render::device.PushMatrix();
-
 		gun->Draw();
-
 		Render::device.PopMatrix();
 	}
-
-
 	if (_curTex==MOUSE_PRESS)
 	{
 		Render::device.PushMatrix();
-
 		bul[0]->Draw();
-
 		Render::device.PopMatrix();
-		
 	}
-	
 	if (_curTex == BULLET_EXIST)
 	{
 		_curTex = BULLET_NOT_EXISTS;
 	}
-
 	
-	for (unsigned int i = 0; i < aim.size(); ++i)
-	{
+	Collision();
 
-		FRect gunRect(bul[0]->GetBullet());
-		gunRect.xStart = bul[0]->GetBullet().x + bul[0]->GetBullet().Width()/2;
-		gunRect.xEnd = bul[0]->GetBullet().x + bul[0]->GetBullet().Width()/2;
-		if (gunRect.Intersects(aim.at(i)->ReturnAimPoints()))
-		{
-			MM::manager.PlaySample("BonusStar");
-
-			_eff->Finish();
-			_eff = _effCont.AddEffect("FindCoin2");
-			_eff->posX = bul[0]->GetBullet().x*2 - bul[0]->GetBullet().height;
-			_eff->posY = bul[0]->GetBullet().y * bul[0]->GetBullet().width/3 + bul[0]->GetBullet().height * 3;
-			_eff->Reset();
-
-			aim.erase(aim.begin() + i);
-
-			counter++;
-			if (aim.empty())
-			{
-				_curTex = GAME_WIN;
-			}
-			else _curTex = BULLET_EXIST;
-		}
-	
-	}
-
-	
 		if (_curTex != GAME_OVER&&_curTex!=GAME_WIN)
 		{
-
 			Render::BindFont("Magneto-Bold");
 		Render::PrintString(924 + 100 / 2, 35, std::string("Time: ") + utils::lexical_cast((int)getElapsedTime()), 1.f, CenterAlign);
-
 		Render::BindFont("arial");
-		dy = Render::getFontHeight();
-
 		x = Render::device.Width() - 5;
 		y = Render::device.Height() - 20;
-
 		Render::PrintString(x, y, std::string("Aims: ") + utils::lexical_cast(aim.size()), 1.5f, RightAlign, BottomAlign);
 		}
-
 	_effCont.Draw();
 }
 
 
 void MainWidget::Update(float dt)
 {
-	
 	_effCont.Update(dt);
-
 	_timer += dt * 100;
-
 
 	while (_timer >100 * math::PI)
 	{
 		_timer -= 100* math::PI;
 	}
-
 	if (_curTex == GAME_WIN)
 	{
-		MM::manager.StopSample(sound);
-		MM::manager.PlaySample("Win");
-		sound = MM::manager.GetTrackId();
+		if (++music_counter <= 1)
+		{
+			MM::manager.StopAll();
+			MM::manager.PlaySample("Win");
+		}
 	}
-
 	if (_curTex != GAME_WIN && _curTex != GAME_OVER)
 	{
 		if (getElapsedTime() >= timer)
@@ -214,15 +186,13 @@ void MainWidget::Update(float dt)
 			_curTex = GAME_OVER;
 		}
 	}
-
 	for (unsigned int i = 0; i < aim.size(); ++i)
 	{
-		aim.at(i)->Update();
+		aim.at(i)->Update(dt);
 	}
-
 	if (_curTex == MOUSE_PRESS) {
 	
-		if (bul[0]->Update())
+		if (bul[0]->Update(dt))
 		{
 			_curTex = BULLET_NOT_EXISTS;
 			bul[0]->texBullet.y = -100;
@@ -232,23 +202,17 @@ void MainWidget::Update(float dt)
 			_eff->posX = bul[0]->GetBullet().x * 2 ;
 			_eff->posY = bul[0]->GetBullet().y * bul[0]->GetBullet().width / 3 ;
 		}
-	
 	}
-
 	if (_curTex == BULLET_NOT_EXISTS)
 	{
 		bul[0]->texBullet.y = -100;
 	}
-
 	if (_curTex == GAME_WIN||_curTex == GAME_OVER)
 	{	
 		aim.clear();
 		if (_eff) _eff->Kill();
 		_eff = NULL;
-
 		Core::Timer::Pause();
-
-
 	}
 }
 
@@ -265,9 +229,7 @@ bool MainWidget::MouseDown(const IPoint &mouse_pos)
 			Render::device.PopMatrix();
 				bul.at(0)->texBullet.x = (float)mouse_pos.x*0.5 + 15;
 				bul.at(0)->texBullet.y = 15;
-
 				MM::manager.PlaySample("Boom");
-
 				_eff = _effCont.AddEffect("BulletTrace");
 				_eff->posX = bul[0]->GetBullet().x;
 				_eff->posY = bul[0]->GetBullet().y;
@@ -275,12 +237,6 @@ bool MainWidget::MouseDown(const IPoint &mouse_pos)
 	}
 	return false;
 }
-
-void MainWidget::MouseMove(const IPoint &mouse_pos)
-{
-	
-}
-
 
 void MainWidget::AcceptMessage(const Message& message)
 {
@@ -299,12 +255,9 @@ void MainWidget::AcceptMessage(const Message& message)
 				delete back;
 				delete data;
 				delete gun;
-
 				for (unsigned int i = 0; i < bul.size(); ++i)
 					bul.erase(bul.begin() + i);
-
 				bul.clear();
-
 				if (!aim.empty()) {
 					for (unsigned int i = 0; i < aim.size(); ++i)
 						aim.erase(aim.begin() + i);
@@ -313,7 +266,7 @@ void MainWidget::AcceptMessage(const Message& message)
 				counter = -1;
 				if (_eff) _eff->Kill();;
 				_eff = NULL;
-				MM::manager.StopSample(sound);
+				MM::manager.StopAll();
 				Init();
 			}
 		}
