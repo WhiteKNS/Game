@@ -8,7 +8,7 @@ public:
 	bool Update(float dt);
 	const IRect GetBullet();
 	//void SetBullet()
-	int Speed;
+	float Speed;
 
 	IRect texBullet;
 

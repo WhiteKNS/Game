@@ -30,8 +30,8 @@ void Bullet::Draw()
 bool Bullet::Update(float dt)
 {
 
-	texBullet.y = texBullet.y + Speed* dt;
-	//texBullet.y += Speed;
+	//texBullet.y = texBullet.y + Speed* dt;
+	texBullet.y += Speed;
 
 	if (texBullet.y > 400)
 	{

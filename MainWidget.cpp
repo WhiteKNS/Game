@@ -17,9 +17,7 @@ MainWidget::MainWidget(const std::string& name, rapidxml::xml_node<>* elem)
 	,_angle(0)
 	, _eff(NULL)
 	,_timer(0)
-	, music_counter(0)
 {
-	setStatic(true);
 	Init();
 }
 
@@ -46,6 +44,7 @@ void MainWidget::Init()
 	Core::Timer::Start();
 	timer = data->GetTime()+Core::Timer::getElapsedTime();
 
+	music_counter = 0;
 }
 
 void MainWidget::DrawGameOver()
@@ -84,16 +83,21 @@ void MainWidget::Collision()
 {
 	for (unsigned int i = 0; i < aim.size(); ++i)
 	{
-		FRect gunRect(bul[0]->GetBullet());
-		gunRect.xStart = bul[0]->GetBullet().x + bul[0]->GetBullet().Width() / 2;
-		gunRect.xEnd = bul[0]->GetBullet().x + bul[0]->GetBullet().Width() / 2;
+		FRect gunRect(bul[0]->texBullet);
+
+		gunRect.xStart = bul[0]->texBullet.x + bul[0]->texBullet.Width() / 2;
+		gunRect.xEnd = bul[0]->texBullet.x + bul[0]->texBullet.Width() / 2 ;
+		gunRect.yStart = bul[0]->texBullet.y - bul[0]->texBullet.height/2;
+		gunRect.yEnd = bul[0]->texBullet.y - bul[0]->texBullet.height / 2;
+
 		if (gunRect.Intersects(aim.at(i)->ReturnAimPoints()))
 		{
 			MM::manager.PlaySample("BonusStar");
 			_eff->Finish();
 			_eff = _effCont.AddEffect("FindCoin2");
-			_eff->posX = bul[0]->GetBullet().x * 2 - bul[0]->GetBullet().height;
-			_eff->posY = bul[0]->GetBullet().y * bul[0]->GetBullet().width / 3 + bul[0]->GetBullet().height * 3;
+
+			_eff->posX = bul[0]->texBullet.x * 2 - bul[0]->texBullet.height;
+			_eff->posY = bul[0]->texBullet.y * bul[0]->texBullet.width / 3 + bul[0]->texBullet.height * 3;
 			_eff->Reset();
 			aim.erase(aim.begin() + i);
 			counter++;
@@ -199,8 +203,8 @@ void MainWidget::Update(float dt)
 		}
 		else
 		{
-			_eff->posX = bul[0]->GetBullet().x * 2 ;
-			_eff->posY = bul[0]->GetBullet().y * bul[0]->GetBullet().width / 3 ;
+			_eff->posX = bul[0]->texBullet.x * 2 ;
+			_eff->posY = bul[0]->texBullet.y * bul[0]->texBullet.width / 3 ;
 		}
 	}
 	if (_curTex == BULLET_NOT_EXISTS)
@@ -231,8 +235,8 @@ bool MainWidget::MouseDown(const IPoint &mouse_pos)
 				bul.at(0)->texBullet.y = 15;
 				MM::manager.PlaySample("Boom");
 				_eff = _effCont.AddEffect("BulletTrace");
-				_eff->posX = bul[0]->GetBullet().x;
-				_eff->posY = bul[0]->GetBullet().y;
+				_eff->posX = bul[0]->texBullet.x;
+				_eff->posY = bul[0]->texBullet.y;
 		}
 	}
 	return false;
