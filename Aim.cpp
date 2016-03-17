@@ -10,7 +10,7 @@ Aim::Aim()
 
 	texAim = _aim->getBitmapRect();
 
-	texAim.x = rand() % 450;
+	texAim.x = rand() % 450; //start position
 	texAim.y = rand() % 300;
 
 	_angle = 0;
@@ -40,7 +40,7 @@ void Aim::Draw()
 
 }
 
-void Aim::Update(float dt)
+void Aim::Update(float dt) //moving aims here
 {
 
 	if (texAim.y > 768 * 0.5 - texAim.height / 2 || texAim.y <= 0)
@@ -78,7 +78,7 @@ void Aim::Update(float dt)
 
 }
 
-FRect Aim::ReturnAimPoints()
+FRect Aim::ReturnAimPoints() //get aim coordinates
 {
 	FRect rect(texAim);
 	rect.xEnd = rect.xStart + rect.Width() / 2;

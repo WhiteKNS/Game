@@ -25,20 +25,20 @@ const int DataBase::GetTime()
 	return save.at(2);
 }
 
-int DataBase::SaveToGame(const std::string current_str)
+int DataBase::SaveToGame(const std::string current_str) 
 {
 	int start = 0;
 	int number = 0;
-	for (unsigned int i = 0; i < current_str.length(); ++i)
+	for (unsigned int i = 0; i < current_str.length(); ++i) 
 	{
-		if (current_str.at(i) == '=')
+		if (current_str.at(i) == '=') 
 		{
 			std::string final_str = "";
-			for (unsigned int j = i + 1; j < current_str.length(); j++)
+			for (unsigned int j = i + 1; j < current_str.length(); j++) //parsing the string
 			{
 				final_str += current_str.at(j);
 			}
-			number = atoi(final_str.c_str());
+			number = atoi(final_str.c_str()); //get number from the file and store it to the vector
 			break;
 		}
 	}
@@ -60,7 +60,7 @@ void DataBase::InitField()
 		int i = 0;
 		while (!fin.eof())
 		{
-			std::getline(fin, current_str, '\n');
+			std::getline(fin, current_str, '\n');//get string from the file
 			if (current_str.empty()) { break; }
 			save.push_back(SaveToGame(current_str));
 			i++;
