@@ -18,6 +18,8 @@ MainWidget::MainWidget(const std::string& name, rapidxml::xml_node<>* elem)
 	, _eff(NULL)
 	,_timer(0)
 {
+	//SetStatic(true);
+	
 	Init();
 }
 
@@ -26,8 +28,8 @@ void MainWidget::Init()
 	MM::manager.PlaySample("Arkanoid", true);
 	back = new Background();
 
-	for (unsigned int i = 0; i < 5; ++i)
-	bul.push_back(new Bullet());
+//	for (unsigned int i = 0; i < 5; ++i)
+	//bul.push_back(new Bullet());
 
 	data = new DataBase();
 	data->InitField();
@@ -35,8 +37,8 @@ void MainWidget::Init()
 	for (int i = 0; i < data->GetTarget(); ++i)
 		aim.push_back(new Aim());
 
-	bul.at(0)->SetSpeed( data->GetSpeed());
-	bul.at(0)->texBullet.y = -150;
+//	bul.at(0)->SetSpeed( data->GetSpeed());
+	//bul.at(0)->texBullet.y = -150;
 	
 	counter = 0;
 	_gameOver = Core::resourceManager.Get<Render::Texture>("Over");
@@ -207,6 +209,7 @@ void MainWidget::Update(float dt)
 	
 		if (bul[0]->Update(dt))
 		{
+			bul.erase(bul.begin());
 			bul.clear();
 			_curTex = BULLET_NOT_EXISTS;
 		}

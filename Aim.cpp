@@ -18,7 +18,7 @@ Aim::Aim()
 	Arrow = rand() % 4;
 
 	x = rand() % 2 + 1;
-	y = rand() % 7 + 1;
+	y = rand() % 5 + 1;
 }
 
 void Aim::Draw()

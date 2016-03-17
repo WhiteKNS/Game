@@ -11,12 +11,15 @@ public:
 	void SetSpeed(int _speed);
 
 	IRect texBullet;
-
+	
+	ParticleEffectPtr _eff;
 private:
+
+	int counter;
 	float Speed;
 	Render::Texture* _bullet;
 	
-
+	
 	EffectsContainer _effCont;
-	ParticleEffectPtr _eff;
+
 };
