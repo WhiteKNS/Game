@@ -17,41 +17,34 @@ MainWidget::MainWidget(const std::string& name, rapidxml::xml_node<>* elem)
 	,_angle(0)
 	, _eff(NULL)
 	,_timer(0)
-{
-	//SetStatic(true);
-	
+{	
 	Init();
 }
 
 void MainWidget::Init()
 {
 	MM::manager.PlaySample("Arkanoid", true);
-	back = new Background();
+	back = new Background();// init background
 
-//	for (unsigned int i = 0; i < 5; ++i)
-	//bul.push_back(new Bullet());
 
-	data = new DataBase();
+	data = new DataBase(); //init database(reading from the file)
 	data->InitField();
 	gun = new Gun();
-	for (int i = 0; i < data->GetTarget(); ++i)
+	for (int i = 0; i < data->GetTarget(); ++i) //set aims
 		aim.push_back(new Aim());
 
-//	bul.at(0)->SetSpeed( data->GetSpeed());
-	//bul.at(0)->texBullet.y = -150;
-	
-	counter = 0;
+	counter = 0; //counter of points
 	_gameOver = Core::resourceManager.Get<Render::Texture>("Over");
 	_gameWin = Core::resourceManager.Get<Render::Texture>("Win");
 	_curTex = 0;
 	
 	Core::Timer::Start();
-	timer = data->GetTime()+Core::Timer::getElapsedTime();
+	timer = data->GetTime()+Core::Timer::getElapsedTime(); //get time
 
 	music_counter = 0;
 }
 
-void MainWidget::DrawGameOver()
+void MainWidget::DrawGameOver() //this method draw the "Game over" field
 {
 	Render::device.PushMatrix();
 
@@ -68,7 +61,7 @@ void MainWidget::DrawGameOver()
 	Render::device.PopMatrix();
 }
 
-void MainWidget::DrawGameWin()
+void MainWidget::DrawGameWin() //sraw the "game win field"
 {
 	Render::device.PushMatrix();
 	IRect texWin = _gameWin->getBitmapRect();
@@ -83,7 +76,7 @@ void MainWidget::DrawGameWin()
 }
 
 
-void MainWidget::Collision()
+void MainWidget::Collision()//  check, if collision exists
 {
 	if (!bul.empty())
 	{
@@ -96,7 +89,7 @@ void MainWidget::Collision()
 			gunRect.yStart = bul[0]->texBullet.y + bul[0]->texBullet.height / 2;
 			gunRect.yEnd = bul[0]->texBullet.y + bul[0]->texBullet.height / 2;
 
-			if (gunRect.Intersects(aim.at(i)->ReturnAimPoints()))
+			if (gunRect.Intersects(aim.at(i)->ReturnAimPoints())) //if collision exists, play sound, delete bullet and checking end of the game
 			{
 				MM::manager.PlaySample("BonusStar");
 
@@ -127,30 +120,30 @@ void MainWidget::Draw()
 	int y = Render::device.Height() - 200;
 
 	back->Draw();
-	if (_curTex == GAME_OVER)
+	if (_curTex == GAME_OVER) //if game over
 	{
 		DrawGameOver();
 	}
-	if (_curTex == GAME_WIN)
+	if (_curTex == GAME_WIN) //if game win
 	{
 		DrawGameWin();
 	}
 	IPoint mouse_pos = Core::mainInput.GetMousePos();
 
-	for (unsigned int i = 0; i < aim.size(); ++i) 
+	for (unsigned int i = 0; i < aim.size(); ++i) //draw aims
 	{
 		Render::device.PushMatrix();
 		aim.at(i)->Draw();
 		Render::device.PopMatrix();
 	}
 	
-	if (_curTex != GAME_OVER&&_curTex != GAME_WIN)
+	if (_curTex != GAME_OVER&&_curTex != GAME_WIN) //draw the gun
 	{
 		Render::device.PushMatrix();
 		gun->Draw();
 		Render::device.PopMatrix();
 	}
-	if (_curTex==MOUSE_PRESS)
+	if (_curTex==MOUSE_PRESS) //draw bullet
 	{
 		Render::device.PushMatrix();
 
@@ -162,9 +155,9 @@ void MainWidget::Draw()
 		_curTex = BULLET_NOT_EXISTS;
 	}
 	
-	Collision();
+	Collision(); //check if collision exists
 
-		if (_curTex != GAME_OVER&&_curTex!=GAME_WIN)
+		if (_curTex != GAME_OVER&&_curTex!=GAME_WIN)// draw game info
 		{
 			Render::BindFont("Magneto-Bold");
 		Render::PrintString(924 + 100 / 2, 35, std::string("Time: ") + utils::lexical_cast((int)getElapsedTime()), 1.f, CenterAlign);
@@ -190,24 +183,24 @@ void MainWidget::Update(float dt)
 	{
 		if (++music_counter <= 1)
 		{
-			MM::manager.StopAll();
+			MM::manager.StopAll();// if win, download new music
 			MM::manager.PlaySample("Win");
 		}
 	}
 	if (_curTex != GAME_WIN && _curTex != GAME_OVER)
 	{
-		if (getElapsedTime() >= timer)
+		if (getElapsedTime() >= timer) //if time elapse - Game over
 		{
 			_curTex = GAME_OVER;
 		}
 	}
 	for (unsigned int i = 0; i < aim.size(); ++i)
 	{
-		aim.at(i)->Update(dt);
+		aim.at(i)->Update(dt); //updating aims
 	}
 	if (_curTex == MOUSE_PRESS) {
 	
-		if (bul[0]->Update(dt))
+		if (bul[0]->Update(dt)) //if bullet out  the field
 		{
 			bul.erase(bul.begin());
 			bul.clear();
@@ -220,7 +213,7 @@ void MainWidget::Update(float dt)
 	}
 	if (_curTex == GAME_WIN||_curTex == GAME_OVER)
 	{	
-		aim.clear();
+		aim.clear(); //if game end - delete aims and effects
 		if (_eff) _eff->Kill();
 		_eff = NULL;
 		Core::Timer::Pause();
@@ -232,7 +225,7 @@ bool MainWidget::MouseDown(const IPoint &mouse_pos)
 {
 	if (Core::mainInput.GetMouseLeftButton())
 	{
-		if (_curTex == BULLET_NOT_EXISTS)
+		if (_curTex == BULLET_NOT_EXISTS) //if left mouse button pressed, create the bullet
 		{
 			_curTex = MOUSE_PRESS;
 
@@ -259,7 +252,7 @@ void MainWidget::AcceptMessage(const Message& message)
 
 		else
 		{
-			if (_curTex == GAME_OVER || _curTex == GAME_WIN)
+			if (_curTex == GAME_OVER || _curTex == GAME_WIN) //if game end, delete all data
 			{
 				delete back;
 				delete data;
@@ -271,7 +264,7 @@ void MainWidget::AcceptMessage(const Message& message)
 				if (_eff) _eff->Kill();;
 				_eff = NULL;
 				MM::manager.StopAll();
-				Init();
+				Init(); //and init new game here
 			}
 		}
 	}

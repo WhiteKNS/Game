@@ -12,13 +12,14 @@ public:
 
 	IRect texBullet;
 	
-	ParticleEffectPtr _eff;
+	
 private:
 
 	int counter;
 	float Speed;
 	Render::Texture* _bullet;
 	
+	ParticleEffectPtr _eff;
 	
 	EffectsContainer _effCont;
 
